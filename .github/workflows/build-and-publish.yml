@@ -31,11 +31,20 @@ jobs:
           cd pkg
           poetry install
 
+      - name: Install built package
+        run: |
+          LATEST_WHL=$(ls pkg/dist/*.whl | sort -V | tail -n 1)
+          python -m pip install "$LATEST_WHL" --no-cache-dir
+          
+      - name: Get pip freeze
+        run: |
+          pip freeze
+      
       - name: Run tests
-        run: poetry run pytest -v . --junitxml=results.xml
+        run: |
+         cd pkg
+         poetry run pytest -v tests --junitxml=results.xml
 
-      - name: Build the package
-        run: poetry build
 
       - name: Publish to PyPI
         if: github.ref == 'refs/heads/master'
